@@ -3,7 +3,7 @@ name: Nueva tarea del proyecto KIP
 about: Template para crear tareas relacionadas al desarrollo del droide KIP (software,
   electrónica o mecánica).
 title: "[Tarea] Nombre de la tarea"
-labels: ''
+labels: tarea
 assignees: ''
 
 ---
