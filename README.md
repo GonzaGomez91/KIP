@@ -116,7 +116,7 @@ KIP was born as an educational, creative, and technical project — intended bot
 
 ## 💡 Project philosophy
 
-KKIP is conceived as an electronic companion.
+KIP is conceived as an electronic companion.
 The goal is not just to build a “cute toy” but also a useful tool. I’ve seen many projects where people build small personal robots that look amazing and are expressive — but which later lack practical utility.
 What I aim for with KIP is to build a droid capable of helping me with various tasks, something that is genuinely useful. That means every function I add must have a practical use.
 
