@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 static ServoManager* _servos = nullptr;
+static Sonar* _sonar = nullptr;
 
 // ---- Estado interno ----
 static bool _potMode = false;
@@ -10,8 +11,9 @@ static int _potMin = 0;
 static int _potMax = 180;
 
 // ---- Inicialización ----
-void SerialTest_init(ServoManager* sm) {
+void SerialTest_init(ServoManager* sm, Sonar* sonar) {
     _servos = sm;
+    _sonar = sonar;
 }
 
 // ---- Funciones públicas ----
@@ -107,6 +109,30 @@ void SerialTest_update() {
             }
             break;
         }
+        //case para el sonar
+        case 'S': {
+            // Lógica para el sonar
+            if (!_sonar) {
+                Serial.println("Sonar no inicializado");
+                break;       
+            }
+            int distance = _sonar->getDistance();
+            Serial.print("Distancia medida por el sonar: ");
+            Serial.print(distance);
+            Serial.println(" cm");
+            break;
+        }
+
+        //caso para el barrido del sonar
+        case 'B': {
+            if (!_sonar) {
+                Serial.println("Sonar no inicializado");
+                break;       
+            }
+            _sonar->barrido();
+            break;
+        }
+        
 
         default:
             Serial.println("Comandos:");
@@ -117,5 +143,7 @@ void SerialTest_update() {
             Serial.println("A <pin> <min> <max>");
             Serial.println("M P  -> modo pot");
             Serial.println("M S  -> modo serial");
+            Serial.println("S     -> medir distancia con sonar");
+            Serial.println("B     -> realizar barrido con sonar");   
     }
 }

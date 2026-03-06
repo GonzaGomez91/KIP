@@ -16,7 +16,8 @@ enum class MoveMode {
 
 // Identificación de los servos del sistema
 enum class ServoID {
-    HEAD_SHUTTER
+    HEAD_SHUTTER,
+    SONAR_MOUNT,
     // Más servos se pueden agregar aquí
 };
 
@@ -86,10 +87,13 @@ public:
 
     // Acceso a servos
     ServoMotor& headShutter();
+    ServoMotor& sonarMount();
+    // Más métodos para acceder a otros servos se pueden agregar aquí
 
 private:
     // Servo del párpado
     ServoMotor _headShutter{9, 15, 0, 150};
+    ServoMotor _sonarMount{10, 90, 0, 150};
     // Más servos se pueden agregar aquí
 };
 

@@ -3,8 +3,11 @@
 #include "Matriz.h"
 #include "ServoManager.h"
 #include "SerialTest.h"
+#include "Sonar.h"
+
 
 ServoManager servos;
+Sonar sonar(7, 6, servos.sonarMount());
 
 void setup() {
   Serial.begin(9600);
@@ -13,7 +16,7 @@ void setup() {
   initMatriz();
   servos.init();
 
-  SerialTest_init(&servos);
+  SerialTest_init(&servos, &sonar); 
 
   Serial.println("=== Sistema listo ===");
 }

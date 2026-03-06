@@ -11,7 +11,7 @@
 #define MAX_DEVICES 4
 
 // Pin CS / LOAD
-#define CS_PIN 10
+#define CS_PIN 2
 
 // VCC 5v, GND GND, DIN 11, CLK 13
 

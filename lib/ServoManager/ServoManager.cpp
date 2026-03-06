@@ -117,12 +117,18 @@ bool ServoMotor::isMoving() const {
 
 void ServoManager::init() {
     _headShutter.init();
+    _sonarMount.init();
 }
 
 void ServoManager::update() {
     _headShutter.update();
+    _sonarMount.update();
 }
 
 ServoMotor& ServoManager::headShutter() {
     return _headShutter;
+}
+
+ServoMotor& ServoManager::sonarMount() {
+    return _sonarMount;
 }
