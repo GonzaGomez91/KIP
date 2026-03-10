@@ -2,7 +2,6 @@
 #include "Estados.h"
 #include "Matriz.h"
 #include "ServoManager.h"
-#include "SerialTest.h"
 #include "Sonar.h"
 
 
@@ -15,18 +14,12 @@ void setup() {
   initEstados();
   initMatriz();
   servos.init();
-
-  SerialTest_init(&servos, &sonar); 
+  sonar.init(); // Configura pines del HC-SR04 antes de leerlo
 
   Serial.println("=== Sistema listo ===");
 }
 
 void loop() {
-
-  if (SerialTest_isPotMode()) {
-      int ang = SerialTest_getPotAngle();
-      servos.headShutter().moveInstant(ang);
-  }
 
   updateEstados();
 
@@ -43,5 +36,4 @@ void loop() {
   updateMatriz(modo);
 
   servos.update();
-  SerialTest_update();
 }

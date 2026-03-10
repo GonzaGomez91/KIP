@@ -1,4 +1,4 @@
-#ifndef ESTADOS_H
+﻿#ifndef ESTADOS_H
 #define ESTADOS_H
 
 #include <Arduino.h>

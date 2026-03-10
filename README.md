@@ -1,4 +1,4 @@
-# 🤖 KIP — Knowledge Implementation Partner
+﻿# 🤖 KIP — Knowledge Implementation Partner
 
 KIP (cariñosamente *Kippy*) es un droide personal inspirado en BD-1 y Pip del universo Star Wars, pero diseñado desde cero con identidad y funcionalidades propias.  
 Este repositorio documenta todo el proceso de construcción: mecánica, electrónica, firmware, diseño 3D y experimentación general.

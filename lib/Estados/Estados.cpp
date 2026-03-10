@@ -1,4 +1,4 @@
-#include "Estados.h"
+﻿#include "Estados.h"
 
 // Estado actual de Kippy
 // static limita su alcance a este archivo

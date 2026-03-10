@@ -1,4 +1,4 @@
-#include  "Sonar.h"
+﻿#include  "Sonar.h"
 #include <Arduino.h>
 
 Sonar::Sonar(int triggerPin, int echoPin, ServoMotor& servo)
@@ -51,12 +51,12 @@ void Sonar::barrido() {
         // Mover el servo a la posición deseada
         _servo.moveInstant(targetAngle); 
 
-        // Esperar a que termine de moverse
+        // Esperar a que termine de moverse (barrido bloqueante por diseño)
         while (_servo.isMoving()) {
             _servo.update();
         }
 
-        // Pequeña pausa para estabilizar la lectura
+        // Pequeña pausa para estabilizar la lectura (bloqueante)
         delay(1000);
 
         // Tomar la medición

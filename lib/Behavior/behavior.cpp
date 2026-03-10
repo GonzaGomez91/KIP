@@ -1,4 +1,4 @@
-#include "behavior.h"
+﻿#include "behavior.h"
 #include "Estados.h"
 
 void behaviorInit() {

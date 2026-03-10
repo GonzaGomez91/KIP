@@ -1,4 +1,4 @@
-//Modulo para el sensor HC-SR04, que mide distancias usando ultrasonidos.
+﻿//Modulo para el sensor HC-SR04, que mide distancias usando ultrasonidos.
 //El sensor estara montado en un servomotor para poder medir distancias en diferentes direcciones.
 //El modulo funciona de la siguiente manera:
 //1. Se envía un pulso de 10 microsegundos al pin de trigger para iniciar la medición.
