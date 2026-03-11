@@ -23,14 +23,14 @@ typedef void (*DevCommandHandler)(const char* args);
 
 // Modulo registrado (para INFO)
 struct DevModule {
-    char tipo[12];
-    char nombre[12];
-    char estado[12]; // OFF, READY, ERROR, etc.
+    char tipo[16];
+    char nombre[16];
+    char estado[16]; // OFF, READY, ERROR, etc.
 };
 
 // Comando registrado (nombre + handler)
 struct DevCommand {
-    char nombre[12];
+    char nombre[16];
     DevCommandHandler fn;
 };
 

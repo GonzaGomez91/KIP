@@ -2,7 +2,7 @@
 
 ## Objetivo
 Gestionar los servos del robot con movimientos no bloqueantes y con distintos
-modos de movimiento (instantáneo, constante y orgánico).
+modos de movimiento (instant�neo, constante y org�nico).
 
 ## Archivos
 - `ServoManager.h`
@@ -11,7 +11,7 @@ modos de movimiento (instantáneo, constante y orgánico).
 ## Estado actual
 - Funcional y en uso desde `main.cpp`.
 
-## Uso básico
+## Uso b�sico
 1. Incluir el header:
    ```cpp
    #include "ServoManager.h"
@@ -38,7 +38,34 @@ modos de movimiento (instantáneo, constante y orgánico).
 - `moveConstant(angulo, velocidad)`: velocidad fija.
 - `moveOrganic(angulo, velMax, aceleracion)`: acelera y frena suavemente.
 
-## Notas didácticas
-- El cálculo del movimiento usa `millis()` para evitar bloqueos.
+
+## Como agregar un nuevo servo
+1. Declarar el nuevo `ServoMotor` en `ServoManager` (en el `private`):
+   ```cpp
+   ServoMotor _nuevoServo{PIN, ANGULO_INICIAL, MIN, MAX};
+   ```
+2. Agregar un metodo publico de acceso:
+   ```cpp
+   ServoMotor& nuevoServo();
+   ```
+3. Inicializarlo en `ServoManager::init()`:
+   ```cpp
+   _nuevoServo.init();
+   ```
+4. Actualizarlo en `ServoManager::update()`:
+   ```cpp
+   _nuevoServo.update();
+   ```
+5. Si usa DevConsole:
+   - Registrar el modulo en `DevConsoleRegistry_registerAll()`.
+   - Agregar el ID en el handler `SERVO`.
+   - Marcar `READY` al inicializar.
+
+## Notas did�cticas
+- El c�lculo del movimiento usa `millis()` para evitar bloqueos.
 - `ServoMotor::update()` debe llamarse con frecuencia para que el movimiento
   sea fluido.
+
+
+
+

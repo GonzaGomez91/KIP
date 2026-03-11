@@ -84,11 +84,17 @@ class ServoManager {
 public:
     void init();    // Inicializa todos los servos
     void update();  // Actualiza todos los servos
+    
+    // Handler para DevConsole (comando SERVO)
+    static void devCommand(const char* args);
+    // DevConsole: acceso a la instancia activa
+    static ServoManager* devGetActive();
 
     // Acceso a servos
     ServoMotor& headShutter();
     ServoMotor& sonarMount();
     // Más métodos para acceder a otros servos se pueden agregar aquí
+
 
 private:
     // Servo del párpado

@@ -1,5 +1,7 @@
 #include "DevConsole.h"
 #include "DevConsoleRegistry.h"
+#include "DevConsoleParse.h"
+#include "DevConsolePot.h"
 
 // =======================================
 // Estado interno (todo estatico, sin malloc)
@@ -27,29 +29,10 @@ static void DevConsole_registerBaseCommands();
 // Helpers internos (no visibles fuera del modulo)
 // =======================================
 
-// Compara dos textos sin distinguir mayusculas/minusculas (ASCII basico)
-static bool equalsIgnoreCase(const char* a, const char* b) {
-    if (!a || !b) return false;
-
-    while (*a && *b) {
-        char ca = *a;
-        char cb = *b;
-
-        if (ca >= 'a' && ca <= 'z') ca = (char)(ca - 'a' + 'A');
-        if (cb >= 'a' && cb <= 'z') cb = (char)(cb - 'a' + 'A');
-
-        if (ca != cb) return false;
-        a++;
-        b++;
-    }
-
-    return (*a == '\0' && *b == '\0');
-}
-
 // Busca un comando por nombre y devuelve su handler o nullptr
 static DevCommandHandler findCommand(const char* name) {
     for (uint8_t i = 0; i < _commandCount; i++) {
-        if (equalsIgnoreCase(_commands[i].nombre, name)) {
+        if (devEqualsIgnoreCase(_commands[i].nombre, name)) {
             return _commands[i].fn;
         }
     }
@@ -99,6 +82,9 @@ void DevConsole_init() {
 
     // Registrar modulos y comandos del proyecto
     DevConsoleRegistry_registerAll();
+
+    // Inicializar subsistemas internos
+    DevConsolePot_init();
 }
 
 // Registra un modulo para que aparezca en INFO
@@ -128,8 +114,8 @@ bool devSetModuleStatus(const char* tipo, const char* nombre, const char* estado
     if (!tipo || !nombre || !estado) return false;
 
     for (uint8_t i = 0; i < _moduleCount; i++) {
-        if (equalsIgnoreCase(_modules[i].tipo, tipo) &&
-            equalsIgnoreCase(_modules[i].nombre, nombre)) {
+        if (devEqualsIgnoreCase(_modules[i].tipo, tipo) &&
+            devEqualsIgnoreCase(_modules[i].nombre, nombre)) {
 
             strncpy(_modules[i].estado, estado, sizeof(_modules[i].estado) - 1);
             _modules[i].estado[sizeof(_modules[i].estado) - 1] = '\0';
@@ -171,6 +157,9 @@ void devSend(const char* tipo, const char* clave, const char* valor) {
 
 // Procesa entrada por Serial sin bloquear
 void DevConsole_update() {
+    // Actualiza tareas internas que no bloquean
+    DevConsolePot_update();
+
     while (Serial.available()) {
         char c = (char)Serial.read();
 

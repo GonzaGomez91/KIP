@@ -1,5 +1,6 @@
 ﻿#include  "Sonar.h"
 #include "DevConsole.h"
+#include "DevConsoleParse.h"
 #include <Arduino.h>
 
 // Instancia activa para DevConsole (se asigna en init)
@@ -81,19 +82,7 @@ void Sonar::barrido() {
     // Volver el servo a la posición central después del barrido
     _servo.moveInstant((MIN_ANGLE + MAX_ANGLE) / 2);
 
-    // Devolver el array de distancias medidas para depuración
-    Serial.println("Distancias medidas en el barrido:");
-    for (int i = 0; i < NUM_MEASUREMENTS; i++) {
-        Serial.print("Ángulo ");
-        Serial.print(MIN_ANGLE + i * angleStep);
-        Serial.print("°: ");
-        if (_distances[i] >= 0) {
-            Serial.print(_distances[i]);
-            Serial.println(" cm");
-        } else {
-            Serial.println("Error o fuera de rango");
-        }
-    }
+    // Nota: el reporte de resultados se hace desde DevConsole (SONAR SCAN)
 }
 
 // =======================================
@@ -106,14 +95,14 @@ void Sonar::devCommand(const char* args) {
         return;
     }
 
-    // Saltar espacios iniciales
-    while (args && *args == ' ') args++;
-    if (!args || *args == '\0') {
+    char cmd[16];
+    const char* p = devNextToken(args, cmd, sizeof(cmd));
+    if (!p || cmd[0] == '\0') {
         devSend("ERR", "SONAR", "MISSING_ARGS");
         return;
     }
 
-    if (strcmp(args, "READ") == 0) {
+    if (devEqualsIgnoreCase(cmd, "READ")) {
         int cm = _devActiveSonar->medirDistancia();
         if (cm < 0) {
             devSend("ERR", "SONAR", "TIMEOUT");
@@ -125,7 +114,7 @@ void Sonar::devCommand(const char* args) {
         return;
     }
 
-    if (strcmp(args, "SCAN") == 0) {
+    if (devEqualsIgnoreCase(cmd, "SCAN")) {
         _devActiveSonar->barrido();
         
         // Devolver mediciones del ultimo barrido

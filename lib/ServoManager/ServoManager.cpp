@@ -1,5 +1,8 @@
 ﻿#include "ServoManager.h"
-
+#include "DevConsole.h"
+#include "DevConsoleParse.h"
+#include <string.h>
+#include <stdlib.h>
 // =======================================
 // IMPLEMENTACIÓN DE ServoMotor
 // =======================================
@@ -115,9 +118,15 @@ bool ServoMotor::isMoving() const {
 // IMPLEMENTACIÓN DE ServoManager
 // =======================================
 
+// Variable estática para DevConsole
+static ServoManager* _devActiveServos = nullptr;
+
 void ServoManager::init() {
+    _devActiveServos = this;
     _headShutter.init();
+    devSetModuleStatus("SERVO", "HEAD_SHUTTER", "READY");
     _sonarMount.init();
+    devSetModuleStatus("SERVO", "SONAR_MOUNT", "READY");
 }
 
 void ServoManager::update() {
@@ -131,4 +140,105 @@ ServoMotor& ServoManager::headShutter() {
 
 ServoMotor& ServoManager::sonarMount() {
     return _sonarMount;
+}
+
+ServoManager* ServoManager::devGetActive() {
+    return _devActiveServos;
+}
+
+// =======================================
+// DevConsole - comando SERVO
+// =======================================
+
+// Busca servo por ID de texto
+static ServoMotor* findServoById(const char* id) {
+    if (devEqualsIgnoreCase(id, "HEAD_SHUTTER")) {
+        return &_devActiveServos->headShutter();
+    }
+    if (devEqualsIgnoreCase(id, "SONAR_MOUNT")) {
+        return &_devActiveServos->sonarMount();
+    }
+    return nullptr;
+}
+
+void ServoManager::devCommand(const char* args) {
+    if (!_devActiveServos) {
+        devSend("ERR", "SERVO", "NOT_READY");
+        return;
+    }
+
+    // Comando: SERVO LIST
+    char id[16];
+    char mode[16];
+    char p1[16];
+    char p2[16];
+    char p3[16];
+
+    const char* p = devNextToken(args, id, sizeof(id));
+    if (!p) {
+        devSend("ERR", "SERVO", "MISSING_ARGS");
+        return;
+    }
+
+    if (devEqualsIgnoreCase(id, "LIST")) {
+        devSend("DATA", "SERVO", "HEAD_SHUTTER");
+        devSend("DATA", "SERVO", "SONAR_MOUNT");
+        return;
+    }
+
+    p = devNextToken(p, mode, sizeof(mode));
+    if (!p || mode[0] == '\0') {
+        devSend("ERR", "SERVO", "MISSING_ARGS");
+        return;
+    }
+
+    ServoMotor* servo = findServoById(id);
+    if (!servo) {
+        devSend("ERR", "SERVO", "UNKNOWN_ID");
+        return;
+    }
+
+    if (devEqualsIgnoreCase(mode, "SET")) {
+        p = devNextToken(p, p1, sizeof(p1));
+        if (!p || p1[0] == '\0') {
+            devSend("ERR", "SERVO", "MISSING_ARGS");
+            return;
+        }
+        int angle = atoi(p1);
+        servo->moveInstant(angle);
+        devSend("OK", "SERVO", id);
+        return;
+    }
+
+    if (devEqualsIgnoreCase(mode, "CONST")) {
+        p = devNextToken(p, p1, sizeof(p1));
+        p = devNextToken(p, p2, sizeof(p2));
+        if (!p1[0] || !p2[0]) {
+            devSend("ERR", "SERVO", "MISSING_ARGS");
+            return;
+        }
+        int angle = atoi(p1);
+        float speed = (float)atof(p2);
+        servo->moveConstant(angle, speed);
+        devSend("OK", "SERVO", id);
+        return;
+    }
+
+    if (devEqualsIgnoreCase(mode, "ORG")) {
+        p = devNextToken(p, p1, sizeof(p1));
+        p = devNextToken(p, p2, sizeof(p2));
+        p = devNextToken(p, p3, sizeof(p3));
+        if (!p1[0] || !p2[0] || !p3[0]) {
+            devSend("ERR", "SERVO", "MISSING_ARGS");
+            return;
+        }
+        int angle = atoi(p1);
+        float maxSpeed = (float)atof(p2);
+        float acc = (float)atof(p3);
+        servo->moveOrganic(angle, maxSpeed, acc);
+        devSend("OK", "SERVO", id);
+        return;
+    }
+
+    devSend("ERR", "SERVO", "UNKNOWN_MODE");
 }
