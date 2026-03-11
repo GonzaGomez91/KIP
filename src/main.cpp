@@ -3,6 +3,7 @@
 #include "Matriz.h"
 #include "ServoManager.h"
 #include "Sonar.h"
+#include "DevConsole.h"
 
 
 ServoManager servos;
@@ -15,6 +16,7 @@ void setup() {
   initMatriz();
   servos.init();
   sonar.init(); // Configura pines del HC-SR04 antes de leerlo
+  DevConsole_init();
 
   Serial.println("=== Sistema listo ===");
 }
@@ -36,4 +38,5 @@ void loop() {
   updateMatriz(modo);
 
   servos.update();
+  DevConsole_update();
 }

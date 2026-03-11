@@ -30,6 +30,8 @@ public:
     // Realiza un barrido girando el servo y midiendo distancias en diferentes ángulos
     void barrido();
 
+    // Handler para DevConsole (comando SONAR)
+    static void devCommand(const char* args);
 
 private:
     // Pines del sonar
