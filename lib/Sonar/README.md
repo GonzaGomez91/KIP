@@ -27,15 +27,15 @@ para mapear el entorno.
    ```
 4. Medir distancia puntual:
    ```cpp
-   int cm = sonar.getDistance();
+   int cm = sonar.medirDistancia();
    ```
 5. Ejecutar un barrido:
    ```cpp
    sonar.barrido();
-   const int* distancias = sonar.getDistances();
+   const int* distancias = sonar.getDistanciasBarrido();
    ```
 
 ## Notas didácticas
-- `getDistance()` usa `pulseIn()` con timeout para evitar bloqueos infinitos.
+- `medirDistancia()` usa `pulseIn()` con timeout para evitar bloqueos infinitos.
 - `barrido()` mueve el servo, espera que termine y toma lecturas. Esto pausa
   el `loop()` mientras se ejecuta.

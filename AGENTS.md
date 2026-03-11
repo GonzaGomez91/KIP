@@ -18,6 +18,7 @@
 - En el futuro existira un modulo llamado `DevConsole` para reemplazar a `SerialTest`.
 - `DevConsole` permitira que un dispositivo externo, como una Cardputer, controle y monitoree a KIP por Serial.
 - Las responsabilidades de depuracion y reporte de errores convergen en `DevConsole` (reemplazo de `ErrorManager`).
+ - El registro de modulos/commandos de DevConsole se centraliza en `DevConsoleRegistry` y los modulos pasan a `READY` al finalizar su `init()`.
 
 ## Documentacion
 - Cada modulo dentro de `lib/` debe tener su propio `README.md` explicando objetivo, archivos, estado actual y forma de uso.

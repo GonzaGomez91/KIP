@@ -18,14 +18,14 @@ public:
     // Inicializa los pines del sonar
     void init();
     
-    // Obtiene la distancia medida por el sonar en centímetros
-    int getDistance();
+    // Mide la distancia por sonar en centimetros
+    int medirDistancia();
     
     // Devuelve la cantidad de mediciones realizadas en el barrido
     static const int getMeasurementCount() { return NUM_MEASUREMENTS; }
 
-    // Metodo para devolver el array de distancias medidas en el barrido
-    const int* getDistances() const { return _distances; }
+    // Devuelve el array de distancias medidas en el barrido
+    const int* getDistanciasBarrido() const { return _distances; }
     
     // Realiza un barrido girando el servo y midiendo distancias en diferentes ángulos
     void barrido();
