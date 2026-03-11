@@ -1,11 +1,20 @@
 
-This directory is intended for PlatformIO Test Runner and project tests.
+Este directorio es para el Test Runner de PlatformIO y los tests del proyecto.
 
-Unit Testing is a software testing method by which individual units of
-source code, sets of one or more MCU program modules together with associated
-control data, usage procedures, and operating procedures, are tested to
-determine whether they are fit for use. Unit testing finds problems early
-in the development cycle.
+La idea principal es poder ejecutar pruebas sin conectar hardware, usando el
+entorno `native`. Ese entorno compila y corre los tests en la PC.
 
-More information about PlatformIO Unit Testing:
-- https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+Comandos utiles:
+ - `pio test -e native`
+ - `pio test -e native -f nombre_del_test`
+
+Estructura recomendada:
+ - `test/test_*/` contiene un grupo de pruebas.
+ - Cada carpeta de test puede tener uno o mas `test_*.cpp`.
+
+Nota:
+ - Evitar dependencias de Arduino en tests host. Si hace falta, aislar el
+   codigo o usar `#ifdef` para compilar caminos separados.
+
+Mas informacion sobre Unit Testing en PlatformIO:
+ - https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
