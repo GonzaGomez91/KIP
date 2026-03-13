@@ -24,7 +24,7 @@ void Sonar::init() {
 }
 
 // Funcionamiento del sensor
-int Sonar::medirDistancia() {
+int Sonar::getDistance() {
     // Enviar pulso de trigger
     digitalWrite(_triggerPin, LOW);
     delayMicroseconds(2);
@@ -70,7 +70,7 @@ void Sonar::barrido() {
         delay(1000);
 
         // Tomar la medición
-        int distance = medirDistancia();
+        int distance = getDistance();
 
         // Guardar la distancia medida
         _distances[i] = distance;
@@ -114,7 +114,7 @@ void Sonar::devCommand(const char* args) {
     }
 
     if (strcmp(args, "READ") == 0) {
-        int cm = _devActiveSonar->medirDistancia();
+        int cm = _devActiveSonar->getDistance();
         if (cm < 0) {
             devSend("ERR", "SONAR", "TIMEOUT");
         } else {
@@ -129,7 +129,7 @@ void Sonar::devCommand(const char* args) {
         _devActiveSonar->barrido();
         
         // Devolver mediciones del ultimo barrido
-        const int* dist = _devActiveSonar->getDistanciasBarrido();
+        const int* dist = _devActiveSonar->getDistances();
         int steps = (NUM_MEASUREMENTS > 1) ? (NUM_MEASUREMENTS - 1) : 1;
         int angleStep = (MAX_ANGLE - MIN_ANGLE) / steps;
 

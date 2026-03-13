@@ -55,7 +55,3 @@ void Sonar::init() {
   - `DATA|SONAR_SCAN|ANGULO:CM`
   - `DATA|SONAR_SCAN|ANGULO:ERR`
   - `OK|SONAR_SCAN|`
-
-Notas:
-- `SONAR READ` usa `medirDistancia()`.
-- `SONAR SCAN` usa `barrido()` y luego `getDistanciasBarrido()`.
