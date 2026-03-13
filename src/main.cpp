@@ -12,11 +12,11 @@ Sonar sonar(7, 6, servos.sonarMount());
 void setup() {
   Serial.begin(9600);
 
-  DevConsole_init();
   initEstados();
   initMatriz();
   servos.init();
   sonar.init(); // Configura pines del HC-SR04 antes de leerlo
+  DevConsole_init();
 
   Serial.println("=== Sistema listo ===");
 }
