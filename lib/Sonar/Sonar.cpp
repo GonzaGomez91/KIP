@@ -1,9 +1,5 @@
 ﻿#include  "Sonar.h"
-#include "DevConsole.h"
 #include <Arduino.h>
-
-// Instancia activa para DevConsole (se asigna en init)
-static Sonar* _devActiveSonar = nullptr;
 
 Sonar::Sonar(int triggerPin, int echoPin, ServoMotor& servo)
     : _triggerPin(triggerPin),
@@ -15,12 +11,6 @@ Sonar::Sonar(int triggerPin, int echoPin, ServoMotor& servo)
 void Sonar::init() {
     pinMode(_triggerPin, OUTPUT);
     pinMode(_echoPin, INPUT);
-
-    // Marcamos el modulo como listo una vez inicializado
-    devSetModuleStatus("SENSOR", "SONAR", "READY");
-
-    // Registramos esta instancia como activa para DevConsole
-    _devActiveSonar = this;
 }
 
 // Funcionamiento del sensor
@@ -94,64 +84,6 @@ void Sonar::barrido() {
             Serial.println("Error o fuera de rango");
         }
     }
-}
-
-// =======================================
-// DevConsole - comando SONAR
-// =======================================
-
-void Sonar::devCommand(const char* args) {
-    if (!_devActiveSonar) {
-        devSend("ERR", "SONAR", "NOT_READY");
-        return;
-    }
-
-    // Saltar espacios iniciales
-    while (args && *args == ' ') args++;
-    if (!args || *args == '\0') {
-        devSend("ERR", "SONAR", "MISSING_ARGS");
-        return;
-    }
-
-    if (strcmp(args, "READ") == 0) {
-        int cm = _devActiveSonar->getDistance();
-        if (cm < 0) {
-            devSend("ERR", "SONAR", "TIMEOUT");
-        } else {
-            char buf[12];
-            itoa(cm, buf, 10);
-            devSend("DATA", "SONAR", buf);
-        }
-        return;
-    }
-
-    if (strcmp(args, "SCAN") == 0) {
-        _devActiveSonar->barrido();
-        
-        // Devolver mediciones del ultimo barrido
-        const int* dist = _devActiveSonar->getDistances();
-        int steps = (NUM_MEASUREMENTS > 1) ? (NUM_MEASUREMENTS - 1) : 1;
-        int angleStep = (MAX_ANGLE - MIN_ANGLE) / steps;
-
-        for (int i = 0; i < NUM_MEASUREMENTS; i++) {
-            int angle = MIN_ANGLE + i * angleStep;
-            char buf[24];
-
-            // Formato: ANGULO:CM  (o ANGULO:ERR)
-            if (dist[i] >= 0) {
-                snprintf(buf, sizeof(buf), "%d:%d", angle, dist[i]);
-            } else {
-                snprintf(buf, sizeof(buf), "%d:ERR", angle);
-            }
-
-            devSend("DATA", "SONAR_SCAN", buf);
-        }
-
-        devSend("OK", "SONAR_SCAN", "");
-        return;
-    }
-
-    devSend("ERR", "SONAR", "UNKNOWN_ARG");
 }
 
 
