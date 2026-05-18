@@ -9,20 +9,25 @@
 
 class IMU {
 public:
-    // Constructor con periodo de actualizacion en ms (por defecto 10 ms ~ 100 Hz)
-    IMU(uint16_t updatePeriodMs = 10);
+    // Constructor
+    IMU();
 
     // Inicializa la IMU y calibra el giroscopio.
     // Devuelve true si el sensor esta presente.
     bool init();
 
-    // Actualiza lecturas si ya paso el tiempo configurado.
-    // Devuelve true si actualizo.
-    bool update();
+    // Habilita interrupciones para detectar movimiento
+    // Requiere conectar INT del MPU6050 a un pin de interrupcion
+    bool initInterrupt(uint8_t intPin);
 
-    // Configura el periodo de actualizacion (ms)
-    void setUpdatePeriodMs(uint16_t ms);
-    uint16_t getUpdatePeriodMs() const;
+    // Procesa interrupciones pendientes (no calcula orientacion)
+    void updateEvents();
+
+    // Detecta movimiento simple (consumible)
+    bool detectMotion();
+
+    // Calcula orientacion bajo demanda
+    bool requestOrientation();
 
     // Angulos actuales (grados)
     float getRoll() const;
@@ -34,15 +39,19 @@ public:
     bool isReady() const;
 
 private:
+    // ISR estatico para interrupciones
+    static void isrThunk();
+    static IMU* _activeInstance;
+
+    // Helpers I2C para configuracion de interrupciones
+    void writeRegister(uint8_t reg, uint8_t value);
+    uint8_t readRegister(uint8_t reg);
+
     // Calibracion basica del giroscopio (sensor quieto)
     void calibrateGyro();
 
-    // Inicia una recalibracion no bloqueante
-    void startRecalibration(bool autoMode);
-
     Adafruit_MPU6050 _mpu;
     bool _ready;
-    uint16_t _updatePeriodMs;
     unsigned long _lastUpdateMs;
 
     // Estado de orientacion (grados)
@@ -54,5 +63,15 @@ private:
     float _gyroXOffset;
     float _gyroYOffset;
     float _gyroZOffset;
+
+    // Interrupciones de movimiento
+    uint8_t _intPin;
+    bool _intEnabled;
+    volatile bool _intFlag;
+    bool _motionDetected;
+
+    // Configuracion basica de movimiento
+    uint8_t _motionThreshold;
+    uint8_t _motionDuration;
 
 };

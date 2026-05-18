@@ -13,6 +13,7 @@ filtro complementario simple.
 - Roll y pitch combinan acelerometro + giroscopio.
 - Yaw solo usa giroscopio (deriva con el tiempo).
 - Solo se calibra al iniciar (no hay recalibracion automatica).
+- Soporta interrupcion de movimiento (pin INT).
 
 ## Uso basico
 1. Incluir el header:
@@ -21,18 +22,32 @@ filtro complementario simple.
    ```
 2. Crear el objeto:
    ```cpp
-   IMU imu; // 100 Hz por defecto
+   IMU imu;
    ```
 3. Inicializar en `setup()`:
    ```cpp
    imu.init();
    ```
-4. Actualizar en `loop()`:
+4. Pedir orientacion cuando se necesite:
    ```cpp
-   if (imu.update()) {
+   if (imu.requestOrientation()) {
        float r = imu.getRoll();
        float p = imu.getPitch();
        float y = imu.getYaw();
+   }
+   ```
+
+## Interrupcion de movimiento
+1. Conectar `INT` del MPU6050 a un pin de interrupcion (UNO: 2 o 3).
+2. Inicializar la interrupcion:
+   ```cpp
+   imu.initInterrupt(2);
+   ```
+3. En el loop, procesar eventos:
+   ```cpp
+   imu.updateEvents();
+   if (imu.detectMotion()) {
+       // reaccionar a movimiento
    }
    ```
 

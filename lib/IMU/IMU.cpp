@@ -2,17 +2,24 @@
 
 #include <Wire.h>
 
-IMU::IMU(uint16_t updatePeriodMs)
+IMU* IMU::_activeInstance = nullptr;
+
+IMU::IMU()
     : _mpu(),
       _ready(false),
-      _updatePeriodMs(updatePeriodMs),
       _lastUpdateMs(0),
       _roll(0.0f),
       _pitch(0.0f),
       _yaw(0.0f),
       _gyroXOffset(0.0f),
       _gyroYOffset(0.0f),
-      _gyroZOffset(0.0f) {
+      _gyroZOffset(0.0f),
+      _intPin(2),
+      _intEnabled(false),
+      _intFlag(false),
+      _motionDetected(false),
+      _motionThreshold(2),
+      _motionDuration(1) {
 }
 
 bool IMU::init() {
@@ -35,16 +42,12 @@ bool IMU::init() {
     return true;
 }
 
-bool IMU::update() {
+bool IMU::requestOrientation() {
     if (!_ready) {
         return false;
     }
 
     unsigned long now = millis();
-    if ((now - _lastUpdateMs) < _updatePeriodMs) {
-        return false;
-    }
-
     float dt = (now - _lastUpdateMs) / 1000.0f;
     _lastUpdateMs = now;
     if (dt > 0.1f) {
@@ -91,12 +94,55 @@ bool IMU::update() {
     return true;
 }
 
-void IMU::setUpdatePeriodMs(uint16_t ms) {
-    _updatePeriodMs = ms;
+bool IMU::initInterrupt(uint8_t intPin) {
+    if (!_ready) {
+        return false;
+    }
+
+    _intPin = intPin;
+    pinMode(_intPin, INPUT);
+
+    _activeInstance = this;
+    attachInterrupt(digitalPinToInterrupt(_intPin), IMU::isrThunk, RISING);
+
+    // Configuracion basica de interrupcion por movimiento
+    // MOT_THR (0x1F) y MOT_DUR (0x20)
+    writeRegister(0x1F, _motionThreshold);
+    writeRegister(0x20, _motionDuration);
+
+    // INT_PIN_CFG (0x37): latch + clear on any read
+    writeRegister(0x37, 0x30);
+
+    // INT_ENABLE (0x38): habilitar MOT_INT (bit 6)
+    writeRegister(0x38, 0x40);
+
+    // Limpiar interrupcion pendiente
+    readRegister(0x3A);
+
+    _intEnabled = true;
+    return true;
 }
 
-uint16_t IMU::getUpdatePeriodMs() const {
-    return _updatePeriodMs;
+void IMU::updateEvents() {
+    if (!_intEnabled) {
+        return;
+    }
+    if (_intFlag) {
+        _intFlag = false;
+        // Leer INT_STATUS para limpiar latch
+        uint8_t status = readRegister(0x3A);
+        if (status & 0x40) {
+            _motionDetected = true;
+        }
+    }
+}
+
+bool IMU::detectMotion() {
+    if (_motionDetected) {
+        _motionDetected = false;
+        return true;
+    }
+    return false;
 }
 
 float IMU::getRoll() const {
@@ -140,4 +186,28 @@ void IMU::calibrateGyro() {
     _gyroXOffset = sumX / samples;
     _gyroYOffset = sumY / samples;
     _gyroZOffset = sumZ / samples;
+}
+
+void IMU::writeRegister(uint8_t reg, uint8_t value) {
+    Wire.beginTransmission(0x68);
+    Wire.write(reg);
+    Wire.write(value);
+    Wire.endTransmission();
+}
+
+uint8_t IMU::readRegister(uint8_t reg) {
+    Wire.beginTransmission(0x68);
+    Wire.write(reg);
+    Wire.endTransmission(false);
+    Wire.requestFrom((uint8_t)0x68, (uint8_t)1);
+    if (Wire.available()) {
+        return Wire.read();
+    }
+    return 0;
+}
+
+void IMU::isrThunk() {
+    if (IMU::_activeInstance) {
+        IMU::_activeInstance->_intFlag = true;
+    }
 }

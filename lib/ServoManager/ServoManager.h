@@ -92,7 +92,7 @@ public:
 
 private:
     // Servo del párpado
-    ServoMotor _headShutter{9, 15, 0, 150};
+    ServoMotor _headShutter{9, 120, 0, 150};
     ServoMotor _sonarMount{10, 90, 0, 150};
     // Más servos se pueden agregar aquí
 };

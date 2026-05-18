@@ -10,6 +10,9 @@ ServoManager servos;
 Sonar sonar(7, 6, servos.sonarMount());
 IMU imu;
 
+void abrirOjo();
+void cerrarOjo(); 
+
 void setup() {
   Serial.begin(9600);
 
@@ -32,13 +35,25 @@ void setup() {
     Serial.println("IMU_FAIL");
   }
   imu.setYaw(0.0f);
+  imu.initInterrupt(2);
 
   Serial.println("=== Sistema listo ===");
 }
 
 void loop() {
-  updateEstados();
+  imu.updateEvents();
+  
+  if (imu.detectMotion()) {
+    abrirOjo();
+    Serial.println("Movimiento detectado: abriendo ojo");
+    delay(2000); // Mantener el ojo abierto por 2 segundos
+  } else {
+    cerrarOjo();
+    
+  }
 
+  updateEstados();
+  
   EstadoKippy estado = getEstadoActual();
 
   ModoMatriz modo;
@@ -51,18 +66,15 @@ void loop() {
 
   updateMatriz(modo);
 
-  if (imu.update()) {
-    Serial.print("roll:");
-    Serial.print(imu.getRoll());
-    Serial.print(" pitch:");
-    Serial.print(imu.getPitch());
-    Serial.print(" yaw:");
-    Serial.print(imu.getYaw());
-    Serial.print(" upper:");
-    Serial.print(90);
-    Serial.print(" lower:");
-    Serial.println(-90);
-  }
-
   servos.update();
+  
+  delay(10); // Pequeña pausa para evitar saturar el loop
+}
+
+void abrirOjo() {
+  servos.headShutter().moveInstant(150); // Abrir completamente
+}
+
+void cerrarOjo() {
+  servos.headShutter().moveInstant(15); // Cerrar completamente
 }
